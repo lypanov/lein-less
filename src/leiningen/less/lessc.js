@@ -1,10 +1,37 @@
 var lessc = {};
 
+lessc.base_options = {};
+
+print("yay");
+
 less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
 
+    print("fileLoader :");
+    print(file);
+    print(JSON.stringify(env.paths));
+    print(JSON.stringify(currentFileInfo));
+
+    print("blah: " + JSON.stringify(!lessc.exists("C:\\Users\\Alexander\\Documents\\Libersy\\Provider\\new-planner\\blah")));
+    print("blah2: " + JSON.stringify(!lessc.exists("C:\\Users\\Alexander\\Documents\\Libersy\\Provider\\new-planner\\blah2")));
+
     var href = file;
-    if (currentFileInfo && currentFileInfo.currentDirectory && !/^\//.test(file)) {
-        href = less.modules.path.join(currentFileInfo.currentDirectory, file);
+    if (!/^\//.test(file)) {
+        print("TEST PASSED!");
+        var possiblePaths = currentFileInfo && currentFileInfo.currentDirectory ? [currentFileInfo.currentDirectory] : [];
+        print(JSON.stringify(possiblePaths));
+        possiblePaths = possiblePaths.concat(env.paths);
+        print(JSON.stringify(possiblePaths));
+        for (var i = 0; i < possiblePaths.length; i++) {
+          print("INDEX" + i);
+          print(possiblePaths[i]);
+            var possiblePath = less.modules.path.join(possiblePaths[i], file);
+            print("checking if exists" + possiblePath);
+            if (lessc.exists(possiblePath)) {
+              print("exists! - using" + possiblePath);
+              href = possiblePath;
+              break;
+            }
+        }
     }
 
     var path = less.modules.path.dirname(href);
@@ -52,6 +79,9 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
 (function () {
     /* derived from lessc-rhino */
     lessc.formatError = function formatError(ctx, options) {
+      print(JSON.stringify(ctx));
+      print(JSON.stringify(options));
+
         options = options || {};
 
         var message = "";
@@ -126,6 +156,12 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
         return undefined;
     };
 
+    var exists_var = RT['var']("leiningen.less.nio", "exists?");
+    lessc.exists = function (filename) {
+        result = exists_var['invoke'](filename);
+        return result;
+    };
+
     var error_var = RT['var']("leiningen.less.engine", "error!");
     lessc.error = function (ctx, options) {
         var message = lessc.formatError(ctx, options);
@@ -144,17 +180,29 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
     };
 
     lessc.compile = function (in_file, out_file) {
-        var options = {filename: in_file};
+        var options = JSON.parse(JSON.stringify(lessc.base_options));
+        print("OMGFOG!");
+        print(options["paths"]);
+        options["paths"] = ["C:\\Users\\Alexander\\Documents\\Libersy\\Provider\\new-planner\\resources\\public\\vendor\\bootstrap\\less",
+                            "C:\\Users\\Alexander\\Documents\\Libersy\\Provider\\new-planner\\src\\main\\less-library"];
+        print(options["paths"]);
+        options["filename"] = in_file;
         var input = lessc.read(in_file, 'utf-8');
         try {
             var parser = new less.Parser(options);
+              print(1);
             parser.parse(input, function (e, root) {
+              print(2);
                 if (e) {
+              print(3);
                     lessc.error(e);
                 }
                 else {
+              print(4);
                     var result = root.toCSS(options);
+              print(5);
                     lessc.write(out_file, result);
+              print(6);
                     lessc.quit(0);
                 }
             });
@@ -164,6 +212,7 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
                 return 0;
             }
             else {
+              print(JSON.stringify(e));
                 lessc.error(e, options);
             }
         }

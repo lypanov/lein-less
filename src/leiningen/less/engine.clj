@@ -91,6 +91,8 @@
   ([^String js-expression]
    (check-engine)
    (try
+     (println "wheee far!")
+     (println js-expression)
      (.eval *engine* js-expression)
      (catch Exception ex
             (error! ex (.getMessage ex)))))
