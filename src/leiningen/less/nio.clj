@@ -115,9 +115,6 @@
 (defn absolute
   "Given a pathish argument, creates an absolute java.nio.file.Path."
   ^Path [pathish]
-  (println "WHEEO ->")
-  (println (as-path pathish))
-  (println (.toAbsolutePath (as-path pathish)))
   (.toAbsolutePath (as-path pathish)))
 
 (defn resource

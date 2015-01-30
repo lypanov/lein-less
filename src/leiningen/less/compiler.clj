@@ -43,18 +43,14 @@
   "Compile a single less resource."
   [src dst]
   (nio/create-directories (nio/parent dst))
-  (print (format "lessc.compile('%s', '%s');" (-> src nio/absolute escape-filename) (-> dst nio/absolute escape-filename)))
   (engine/eval! (format "lessc.compile('%s', '%s');" (-> src nio/absolute escape-filename) (-> dst nio/absolute escape-filename))))
 
 
 (defn compile-project
   "Take a normalised project configuration and a sequence of src/dst pairs, compiles each pair."
   [project units on-error]
-  (println "blah")
-  (println (-> project :less :foo))
   (engine/eval! (-> project :less :foo))
   (doseq [{:keys [^Path src ^Path dst]} units]
-    (println (format "%s => %s" (nio/fstr project src) (nio/fstr project dst)))
     (try
       (compile-resource src dst)
       (catch LessError ex
