@@ -1,24 +1,20 @@
-(ns leiningen.less.engine
+(ns clj-less.engine
   (:require [clojure.java.io :as jio])
   (:import (javax.script ScriptEngineManager ScriptEngine ScriptContext Bindings ScriptException)
            (java.nio.file Path)
            (java.io File Reader)
-           (leiningen.less LessError)
+           (clj_less LessError)
            (java.util Map)))
-
 
 (def ^:private ^ScriptEngineManager engine-manager (ScriptEngineManager.))
 
-
 (def ^:dynamic ^:private ^ScriptEngine *engine* nil)
-
 
 (defn create-engine
   "Create a new script engine for the specified name. E.g. rhino, nashorn."
   ([] (create-engine "javascript"))
   ([^String engine-type]
    (.getEngineByName engine-manager engine-type)))
-
 
 (defn with-engine* [engine-param body-fn]
   (let [engine (if (string? engine-param) (create-engine engine-param) engine-param)]

@@ -125,7 +125,8 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
         type = "nashorn";
     }
 
-    var slurp_var = RT['var']("clojure.core", "slurp");
+    //    var slurp_var = RT['var']("clojure.core", "slurp");
+    var slurp_var = RT['var']("clj-less.less", "load");
     lessc.read = function (filename, encoding) {
         return String(slurp_var['invoke'](filename));
     };
@@ -136,13 +137,13 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
         return undefined;
     };
 
-    var exists_var = RT['var']("leiningen.less.nio", "exists?");
+    var exists_var = RT['var']("clj-less.nio", "exists?");
     lessc.exists = function (filename) {
         result = exists_var['invoke'](filename);
         return result;
     };
 
-    var error_var = RT['var']("leiningen.less.engine", "error!");
+    var error_var = RT['var']("clj-less.engine", "error!");
     lessc.error = function (ctx, options) {
         var message = lessc.formatError(ctx, options);
         if (ctx.javaException) {
@@ -166,6 +167,7 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
         options["filename"] = in_file;
         var input = lessc.read(in_file, 'utf-8');
         try {
+
             var parser = new less.Parser(options);
             parser.parse(input, function (e, root) {
                 if (e) {
@@ -183,7 +185,9 @@ less.Parser.fileLoader = function (file, currentFileInfo, callback, env) {
                 return 0;
             }
             else {
-              print(JSON.stringify(e));
+                print("out_file: " + out_file);
+                for (prop in options) { print("options[" + prop + "] = " + options[prop]); };
+                print(JSON.stringify(e));
                 lessc.error(e, options);
             }
         }
